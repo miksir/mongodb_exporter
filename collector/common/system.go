@@ -19,7 +19,7 @@ import "strings"
 // IsSystemDB tests whether system db name passed.
 func IsSystemDB(dbName string) bool {
 	switch dbName {
-	case "admin", "config", "local":
+	case "admin", "config", "local", "mdb_internal":
 		return true
 	default:
 		return false

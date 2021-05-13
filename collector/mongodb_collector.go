@@ -40,6 +40,7 @@ type MongodbCollectorOpts struct {
 	CollectTopMetrics        bool
 	CollectIndexUsageStats   bool
 	CollectConnPoolStats     bool
+	DisableCollectOplog      bool
 }
 
 func (in *MongodbCollectorOpts) toSessionOps() *shared.MongoSessionOpts {
@@ -320,10 +321,12 @@ func (exporter *MongodbCollector) collectMongodReplSet(client *mongo.Client, ch 
 		replSetStatus.Export(ch)
 	}
 
-	log.Debug("Collecting Replset Oplog Status")
-	oplogStatus := mongod.GetOplogStatus(client)
-	if oplogStatus != nil {
-		oplogStatus.Export(ch)
+	if !exporter.Opts.DisableCollectOplog {
+		log.Debug("Collecting Replset Oplog Status")
+		oplogStatus := mongod.GetOplogStatus(client)
+		if oplogStatus != nil {
+			oplogStatus.Export(ch)
+		}
 	}
 }
 

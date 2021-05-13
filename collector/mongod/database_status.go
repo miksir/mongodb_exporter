@@ -2,6 +2,7 @@ package mongod
 
 import (
 	"context"
+	"github.com/percona/mongodb_exporter/collector/common"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -93,11 +94,14 @@ func GetDatabaseStatList(client *mongo.Client) *DatabaseStatList {
 		return nil
 	}
 	for _, db := range dbNames {
+		if common.IsSystemDB(db) {
+			continue
+		}
 		dbStatus := DatabaseStatus{}
 		err := client.Database(db).RunCommand(context.TODO(), bson.D{{"dbStats", 1}, {"scale", 1}}).Decode(&dbStatus)
 		if err != nil {
 			log.Errorf("Failed to get database status: %s.", err)
-			return nil
+			continue
 		}
 		dbStatList.Members = append(dbStatList.Members, dbStatus)
 	}
